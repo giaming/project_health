@@ -1,4 +1,5 @@
 # Project exclude paths
+.idea
 /health_parent/health_backend/target/
 /health_parent/health_common/target/
 /health_parent/health_interface/target/
