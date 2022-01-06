@@ -17,8 +17,8 @@ import java.io.InputStream;
  * 七牛云工具类
  */
 public class QiniuUtils {
-    public  static String accessKey = "uAex2Ws5x-8UWxRhLaH5eN9_CGDFPBPMzRnJfPIP";
-    public  static String secretKey = "V-YsNQ4RQ2aOUkQIxFxru_V3Zt0rsa4kUBlBBZdZ";
+    public  static String accessKey = "";
+    public  static String secretKey = "";
     public  static String bucket = "giaming-health";
 
     /**

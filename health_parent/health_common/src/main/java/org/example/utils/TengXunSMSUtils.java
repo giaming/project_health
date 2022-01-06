@@ -28,7 +28,8 @@ public class TengXunSMSUtils {
 			 * 您也可以直接在代码中写入密钥对，但需谨防泄露，不要将代码复制、上传或者分享给他人
 			 * CAM 密钥查询：https://console.cloud.tencent.com/cam/capi
 			 */
-			Credential cred = new Credential("AKIDEFZG7m4oGTP30iaNIzRcihTQ7Xx8IoJN", "znKfMo0yiDVXLaYfbaJmyub2EBWTEjxc");
+			// 填上自己的key
+			Credential cred = new Credential("secretId", "secretKey");
 			// 实例化一个 http 选项，可选，无特殊需求时可以跳过
 			HttpProfile httpProfile = new HttpProfile();
 			/* SDK 默认使用 POST 方法。
