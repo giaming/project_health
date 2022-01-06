@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.example.dao.SetmealDao">
+
+
+    <insert id="add" parameterType="org.example.pojo.Setmeal">
+        <selectKey keyColumn="id" keyProperty="id" resultType="Integer" order="AFTER">
+            select  LAST_INSERT_ID()
+        </selectKey>
+        insert into t_setmeal
+        (code,name,sex,age,helpCode,price,remark,attention,img)
+        values
+        (#{code},#{name},#{sex},#{age},#{helpCode},#{price},#{remark},#{attention},#{img})
+    </insert>
+
+    <!--设置套餐和检查组多对多关系，操作的是中间关系表-->
+    <update id="setSetmealAndCheckGroup" parameterType="map">
+        insert into t_setmeal_checkgroup(setmeal_id,checkgroup_id)
+        values
+            (#{setmealId}, #{checkgroupId})
+    </update>
+
+    <!--根据条件查询-->
+    <select id="findByCondition" parameterType="string" resultType="org.example.pojo.Setmeal">
+        select * from t_setmeal
+        <if test="value!=null and value.length>0">
+            where name like concat('%',#{value},'%') or code=#{value} or helpCode=#{value}
+        </if>
+    </select>
+
+<!--    &lt;!&ndash;套餐id查询&ndash;&gt;-->
+<!--    <select id="findById" parameterType="int" resultType="org.example.pojo.Setmeal">-->
+<!--        select * from t_setmeal where id=#{id}-->
+<!--    </select>-->
+
+    <!--使用套餐id，查询检查组的集合ID-->
+    <select id="findCheckGroupIdsBySetmealId" parameterType="Integer" resultType="Integer">
+        select checkgroup_id from t_setmeal_checkgroup where setmeal_id = #{setmealId}
+    </select>
+
+    <!--使用套餐id，删除套餐和检查组中间表数据-->
+    <delete id="deleteAssociation" parameterType="int">
+        delete
+        from t_setmeal_checkgroup
+        where setmeal_id=#{id};
+    </delete>
+
+    <!--编辑-->
+    <update parameterType="org.example.pojo.Setmeal" id="edit">
+        update t_setmeal
+        <set>
+            <if test="name!=null and name.length>0">
+                name=#{name},
+            </if>
+            <if test="code!=null and code.length>0">
+                code=#{code},
+            </if>
+            <if test="helpCode!=null and helpCode.length>0">
+                helpCode=#{helpCode},
+            </if>
+            <if test="sex!=null and sex.length>0">
+                sex=#{sex},
+            </if>
+            <if test="age!=null and age.length>0">
+                age=#{age},
+            </if>
+            <if test="price!=null">
+                price=#{price},
+            </if>
+            <if test="remark!=null and remark.length>0">
+                remark=#{remark},
+            </if>
+            <if test="attention!=null and attention.length>0">
+                attention=#{attention},
+            </if>
+            <if test="img!=null and img.length>0">
+                img=#{img},
+            </if>
+        </set>
+            where id=#{id}
+    </update>
+
+    <!--根据套餐id查询套餐和检查组中间表-->
+    <select id="findSetmealAndCheckGroupCountBySetMealId" parameterType="int" resultType="int">
+        select count(*) from t_setmeal_checkgroup where setmeal_id=#{setmeal_id}
+    </select>
+
+    <!--根据id删除套餐-->
+    <delete id="deleteById" parameterType="int">
+        delete from t_setmeal where id=#{id}
+    </delete>
+
+    <!--移动端获取所有的套餐信息-->
+    <select id="findAll" resultType="org.example.pojo.Setmeal">
+        select * from t_setmeal
+    </select>
+
+<!--    <resultMap id="baseResultMap" type="org.example.pojo.Setmeal">-->
+<!--        <id column="id" property="id"/>-->
+<!--        <result column="name" property="name"/>-->
+<!--        <result column="code" property="code"/>-->
+<!--        <result column="helpCode" property="helpCode"/>-->
+<!--        <result column="sex" property="sex"/>-->
+<!--        <result column="age" property="age"/>-->
+<!--        <result column="price" property="price"/>-->
+<!--        <result column="remark" property="remark"/>-->
+<!--        <result column="attention" property="attention"/>-->
+<!--        <result column="img" property="img"/>-->
+<!--    </resultMap>-->
+
+<!--    &lt;!&ndash;配置多对多映射关系&ndash;&gt;-->
+<!--    <resultMap id="findByIdResultMap"-->
+<!--               type="org.example.pojo.Setmeal"-->
+<!--               extends="baseResultMap">-->
+<!--        &lt;!&ndash;column用于指定将哪个字段的值传递给第二条sql&ndash;&gt;-->
+<!--        <collection property="checkGroups"-->
+<!--                    javaType="ArrayList"-->
+<!--                    ofType="org.example.pojo.CheckGroup"-->
+<!--                    column="id"-->
+<!--                    select="org.example.dao.CheckGroupDao.findCheckGroupById">-->
+<!--        </collection>-->
+<!--    </resultMap>-->
+
+    <resultMap id="findSetMealById" type="org.example.pojo.Setmeal">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="code" property="code"></result>
+        <result column="helpCode" property="helpCode"></result>
+        <result column="sex" property="sex"></result>
+        <result column="age" property="age"></result>
+        <result column="price" property="price"></result>
+        <result column="remark" property="remark"></result>
+        <result column="attention" property="attention"></result>
+        <result column="img" property="img"></result>
+        <collection property="checkGroups"
+                    column="id"
+                    ofType="org.example.pojo.CheckGroup"
+                    select="org.example.dao.CheckGroupDao.findCheckGroupBySetmealId"></collection>
+    </resultMap>
+
+    <!--套餐id查询-->
+    <select id="findById" parameterType="int" resultMap="findSetMealById">
+        select * from t_setmeal where id=#{id}
+    </select>
+
+    <!--查询套餐占比-->
+    <select id="findSetmealCount" resultType="java.util.Map">
+        select s.name, count(o.id) as value
+            from t_order as o, t_setmeal as s
+            where o.setmeal_id = s.id
+            group by s.name
+    </select>
+
+
+</mapper>

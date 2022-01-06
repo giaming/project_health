@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.example.dao.CheckGroupDao">
+    <resultMap id="baseResultMap" type="org.example.pojo.CheckGroup">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+    </resultMap>
+    <!--配置多对多映射关系-->
+    <resultMap id="findByIdResultMap" type="org.example.pojo.CheckGroup" extends="baseResultMap">
+        <collection property="checkItems" ofType="org.example.pojo.CheckItem"
+                    column="id"
+                    select="com.itheima.dao.CheckItemDao.findCheckItemsByCheckGroupId"></collection>
+    </resultMap>
+    
+    <insert id="add" parameterType="org.example.pojo.CheckGroup">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into t_checkgroup(code,name,helpCode,sex,remark,attention)
+                      values
+        (#{code},#{name},#{helpCode},#{sex},#{remark},#{attention})
+    </insert>
+
+    <!--设置检查组和检查项多对多关系，操作的是中间关系表-->
+    <insert id="setCheckGroupAndCheckItem" parameterType="map">
+        insert into t_checkgroup_checkitem(checkgroup_id,checkitem_id) values (#{checkgroupId},#{checkitemId})
+    </insert>
+
+    <!--根据条件查询-->
+    <select id="findByCondition" parameterType="string" resultType="org.example.pojo.CheckGroup">
+        select * from t_checkgroup
+        <if test="value != null and value.length > 0">
+            where code = #{value} or name like '%${value}%' or helpCode = #{value}
+        </if>
+    </select>
+
+    <!--根据id查询-->
+    <select id="findById" parameterType="int" resultType="org.example.pojo.CheckGroup">
+        select * from t_checkgroup where id = #{id}
+    </select>
+
+    <update id="edit" parameterType="org.example.pojo.CheckGroup">
+        update t_checkgroup
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            <if test="helpCode != null">
+                helpCode = #{helpCode},
+            </if>
+            <if test="attention != null">
+                attention = #{attention},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAssociation" parameterType="int">
+        delete from t_checkgroup_checkitem where checkgroup_id = #{checkgroup_id}
+    </delete>
+
+    <select id="findAll" resultType="org.example.pojo.CheckGroup">
+        select * from t_checkgroup
+    </select>
+
+    <!--根据套餐id查询关联的检查组集合-->
+    <select id="selectCheckGroupsBySetmealId" parameterType="int" resultMap="findByIdResultMap">
+        select * from t_checkgroup where id in (select checkgroup_id from t_setmeal_checkgroup where setmeal_id = #{setmealId})
+    </select>
+
+    <!--查询检查组和检查项表关系是否存在-->
+    <select id="findCountByCheckGroupIdO" parameterType="Integer" resultType="Integer">
+        select count(*) from t_checkgroup_checkitem where checkgroup_id = #{id}
+    </select>
+
+    <!--查询检查组和套餐表关系是否存在-->
+    <select id="findCountByCheckGroupIdT" parameterType="Integer" resultType="Integer">
+        select count(*) from t_setmeal_checkgroup where checkgroup_id = #{id}
+    </select>
+
+    <!--删除检查组-->
+    <delete id="deleteById" parameterType="Integer">
+        delete from t_checkgroup where id=#{id}
+    </delete>
+
+    <resultMap id="findCheckGroupBySetmealId" type="org.example.pojo.CheckGroup">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+        <collection property="checkItems"
+                    column="id"
+                    ofType="org.example.pojo.CheckItem"
+                    select="org.example.dao.CheckItemDao.findCheckItemByCheckGroupId"></collection>
+    </resultMap>
+
+    <select id="findCheckGroupBySetmealId" parameterType="Integer" resultMap="findCheckGroupBySetmealId">
+        select *
+        from t_checkgroup
+        where id in(
+            select checkgroup_id from t_setmeal_checkgroup where setmeal_id=#{id}
+            );
+    </select>
+</mapper>

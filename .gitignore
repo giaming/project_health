@@ -1,0 +1,7 @@
+# Project exclude paths
+/health_parent/health_backend/target/
+/health_parent/health_common/target/
+/health_parent/health_interface/target/
+/health_parent/health_jobs/target/
+/health_parent/health_mobile/target/
+/health_parent/health_service_provider/target/

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.example.dao.OrderSettingDao">
+    <!--执行插入操作-->
+    <insert id="addFileData" parameterType="org.example.pojo.OrderSetting">
+        insert into t_ordersetting
+        (orderDate, number, reservations)
+        values
+        (#{orderDate,jdbcType=DATE}, #{number}, #{reservations})
+    </insert>
+
+    <!--执行编辑操作-->
+    <update id="editNumberByOrderDate" parameterType="org.example.pojo.OrderSetting">
+        update t_ordersetting
+        set number = #{number}
+        where orderDate = #{orderDate,jdbcType=DATE}
+    </update>
+
+
+    <!--判断当前日期是否进行了预约设置-->
+    <select id="findCountByOrderDate" parameterType="date" resultType="long">
+        select count(id) from t_ordersetting where orderDate=#{orderDate,jdbcType=DATE}
+    </select>
+
+    <!--根据日期范围查询预约设置数据-->
+    <select id="getOrderSettingByMonth" parameterType="map" resultType="org.example.pojo.OrderSetting">
+        select * from t_ordersetting where orderDate between #{begin,jdbcType=DATE} and #{end,jdbcType=DATE}
+    </select>
+
+    <!--根据预约日期查询预约设置信息-->
+    <select id="findByOrderDate" parameterType="java.util.Date" resultType="org.example.pojo.OrderSetting">
+        select * from t_ordersetting where orderDate = #{orderDate,jdbcType=DATE}
+    </select>
+
+    <!--更新预约人数-->
+    <update id="editReservationsByOrderDate" parameterType="org.example.pojo.OrderSetting">
+        update t_ordersetting set reservations=#{reservations} where orderDate=#{orderDate,jdbcType=DATE}
+    </update>
+</mapper>
